@@ -3,8 +3,9 @@ module Dispatch
 export @dynamic_dispatch, @static_dispatch
 
 macro dynamic_dispatch(fun)
-    args = Base.method_argnames(methods(eval(fun))[1])[2:end]
-    name = collect(eachsplit(string(eval(fun)), "."))[end]
+    _function = eval(Meta.parse("$(__module__).$(fun)"))
+    args = Base.method_argnames(methods(_function)[1])[2:end]
+    name = collect(eachsplit(string(_function), "."))[end]
     body = quote
         function $(esc(Symbol(name)))($(map(esc, args)...))
             obj = $(args[1])
@@ -16,11 +17,18 @@ macro dynamic_dispatch(fun)
 end
 
 macro static_dispatch(fun, types)
-    name = collect(eachsplit(string(eval(fun)), "."))[end]
-    method = methods(eval(fun))[1]
+    
+    # println(map(x-> Meta.parse("$(__module__).$(strip(x))"), 
+    # split(strip(string(types), ['[', ']']), ',')))
+    
+    _types = map(x-> eval(Meta.parse("$(__module__).$(strip(x))")), 
+    split(strip(string(types), ['[', ']']), ','))
+    _function = eval(Meta.parse("$(__module__).$(fun)"))
+    name = collect(eachsplit(string(_function), "."))[end]
+    method = methods(_function)[1]
     # args_types = method.sig.parameters[2:end]
     args_names = Base.method_argnames(method)[2:end]
-    module_types = [(parentmodule(t), t) for t in eval(types)]
+    module_types = [(parentmodule(t), t) for t in _types]
     specialized_functions = [
         :(
             function $(esc(Symbol(name)))(i::$t, $(args_names[2:end]...))

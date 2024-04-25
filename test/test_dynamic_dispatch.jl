@@ -9,7 +9,7 @@ using .ModuleA
 using .ModuleB
 import .Api: foo
 
-@dynamic_dispatch(Main.DynamicDispatch.Api.foo)
+@dynamic_dispatch(Api.foo)
 
 function run()
     foo(A(), "a", 1)

@@ -9,9 +9,9 @@ using .ModuleA
 using .ModuleB
 import .Api: foo
 
-@static_dispatch(Main.StaticDispatch.Api.foo, [
-    Main.StaticDispatch.ModuleA.A,
-    Main.StaticDispatch.ModuleB.B,
+@static_dispatch(Api.foo, [
+    ModuleA.A,
+    ModuleB.B,
 ])
 
 function run()
