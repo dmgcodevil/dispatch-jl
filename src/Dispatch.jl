@@ -17,12 +17,8 @@ macro dynamic_dispatch(fun)
 end
 
 macro static_dispatch(fun, types)
-    
-    # println(map(x-> Meta.parse("$(__module__).$(strip(x))"), 
-    # split(strip(string(types), ['[', ']']), ',')))
-    
-    _types = map(x-> eval(Meta.parse("$(__module__).$(strip(x))")), 
-    split(strip(string(types), ['[', ']']), ','))
+    _types = map(x -> eval(Meta.parse("$(__module__).$(strip(x))")),
+        split(strip(string(types), ['[', ']']), ','))
     _function = eval(Meta.parse("$(__module__).$(fun)"))
     name = collect(eachsplit(string(_function), "."))[end]
     method = methods(_function)[1]
