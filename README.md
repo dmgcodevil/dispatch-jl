@@ -3,6 +3,8 @@ Dispatch.jl is a Julia package that provides macros for dynamic and static dispa
 
 # Example
 
+[Tests](https://github.com/dmgcodevil/dispatch-jl/tree/main/test)
+
 Imagine you have `Api` module and two implementation modules: `ModuleA` and `ModuleB`
 
 Api:
@@ -88,13 +90,11 @@ foo(B(), "b", 2)
 the macro will generate a code like the below:
 
 ```jl
-function foo(i::Interface, s::String, n::Int)
-    if i isa ModuleA.A
-        ModuleA.foo(i, s, n)
-    elseif i isa ModuleB.B
-        ModuleB.foo(i, s, n)
-    else
-        error("unknown type")
+begin
+    function foo(i, s, n)
+        var"#6#obj" = i
+        var"#7#m" = Dispatch.parentmodule(Dispatch.typeof(var"#6#obj"))   
+        return (var"#7#m").foo(i, s, n)
     end
 end
 ```
@@ -119,6 +119,11 @@ import .Api: foo
     Main.ModuleB.B,
 ])
 
+# or relative path
+# @static_dispatch(Api.foo, [
+#     ModuleA.A,
+#     ModuleB.B,
+# ])
 
 foo(A(), "a", 1)
 foo(B(), "b", 2)   
